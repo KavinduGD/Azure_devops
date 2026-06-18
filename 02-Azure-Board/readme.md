@@ -17,3 +17,7 @@ Kanban boards, backlogs, sprint planning, queries, and dashboard charts, all tig
 - **Scrum**: For teams that follow the Scrum framework, with work item types like Product Backlog Item, Task, Bug, and Epic.
 - **CMMI**: For teams that follow the Capability Maturity Model Integration (CMMI) process, with work item types like Requirement, Change Request, Task, and Bug.
 - **Basic**: A simplified process for teams new to Azure Boards, with work item types like Issue, Task, and Epic.
+
+### Base on the process type you choose, you will have different work item types and board configurations. You can also customize the work item types, states, and board columns to fit your team's workflow.
+
+- eg: If you choose the Agile process, you will have work item types like User Story, Task, Bug, and Epic. You can customize the states and board columns to fit your team's workflow, such as adding a "In Review" state or a "Blocked" column.
