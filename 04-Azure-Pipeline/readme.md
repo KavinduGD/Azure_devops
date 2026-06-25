@@ -17,7 +17,9 @@ Developer Pushes Code
  (AWS, Azure, VM, etc.)
 ```
 
-## Build Pipeline
+## Pipeline Overview
+
+### Build Pipeline
 
 - A build pipeline takes code, builds it, tests it, and creates an artifact.
 
@@ -25,13 +27,19 @@ Developer Pushes Code
 
 - A build pipeline is the first step towards continuous integration and continuous testing.
 
-## Release Pipeline
+### Release Pipeline
 
 - Release pipelines take the artifact and deploys it.
 
 - A release pipeline is generally technology agnostic relative to the build artifact (e.g. .NET Core Web App, NodeJS, etc.) and the target environment (e.g. Azure, AWS, Virtual machine, etc)
 
 - Needed for continuous delivery
+
+### Multistage Pipeline
+
+- 🛑 Build pipeline and Release pipeline are now legacy features
+
+- In modern YAML-based pipelines, the concepts of "Build" and "Release" merge into one continuous CI/CD process. You can now manage your entire build and deployment pipeline in a single azure-pipelines.yml file, broken down into sequential stages.
 
 ---
 
@@ -91,36 +99,58 @@ stages:
 
 Even though both use ubuntu-latest, they are usually different fresh VMs.
 
-### Task vs Script
-
-- **Task**: A pre-packaged script that performs an action like installing runtime, running unit tests, or packaging a repo as a build artifact. Tasks are reusable and can be shared across pipelines.
-- **Script**: A custom script that you write to perform a specific action. Scripts can be written in various scripting languages like PowerShell, Bash, or Python.
-
 ```yaml
-trigger:
-  - frontend
+stages:
+  - stage: Build
+    jobs:
+      - job: Frontend
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - script: echo "Building frontend"
 
-pool:
-  vmImage: ubuntu-latest
+      - job: Backend
+        pool:
+          vmImage: windows-latest
+        steps:
+          - script: echo "Building backend"
 
-steps:
-  - task: UseNode@1
-    displayName: "Use Node.js"
-    inputs:
-      version: "22.x"
+      - job: MacTest
+        pool:
+          vmImage: macOS-latest
+        steps:
+          - script: echo "Running macOS tests"
+```
 
-  - script: |
-      npm install
-      npm run build
-    displayName: "Install dependencies and build"
+Here:
 
-  - task: Docker@2
-    displayName: "Build and Push Docker Image"
-    inputs:
-      containerRegistry: "kavindu_dockerhub"
-      repository: "kavinduorg/azuredevops-frontend"
-      command: "buildAndPush"
-      Dockerfile: "./Dockerfile"
+- Frontend runs on an Ubuntu VM.
+- Backend runs on a Windows VM.
+- MacTest runs on a macOS VM.
+
+---
+
+Advanced Pipeline Structure
+
+```
+Pipeline
+│
+├── Stage
+│     ├── Job
+│     │     ├── Step
+│     │     ├── Step
+│     │     └── Step
+│     │
+│     ├── Job
+│     │     ├── Step
+│     │     └── Step
+│     │
+│     └── Job
+│           └── Step
+│
+└── Stage
+      └── Job
+            └── Step
 ```
 
 ```yaml
@@ -226,6 +256,86 @@ stages:
                 - script: |
                     echo "Deploying image $(Build.BuildId)"
                 displayName: "Deploy Application"
+```
+
+---
+
+Below pipeline don't have stages and jobs. If we do not explicitly define any stages or jobs, but Azure DevOps creates them automatically.
+
+```yaml
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - checkout: self
+  - task: NodeTool@0
+  - script: npm install
+  - script: npm test
+  - script: npm run build
+```
+
+is equivalent to this:
+
+```yaml
+trigger:
+  - main
+
+stages:
+  - stage: Stage1
+    jobs:
+      - job: Job1
+        pool:
+          vmImage: ubuntu-latest
+
+        steps:
+          - checkout: self
+
+          - task: NodeTool@0
+            inputs:
+              versionSpec: "20.x"
+
+          - script: npm install
+
+          - script: npm test
+
+          - script: npm run build
+```
+
+---
+
+### Task vs Script
+
+- **Task**: A pre-packaged script that performs an action like installing runtime, running unit tests, or packaging a repo as a build artifact. Tasks are reusable and can be shared across pipelines.
+- **Script**: A custom script that you write to perform a specific action. Scripts can be written in various scripting languages like PowerShell, Bash, or Python.
+
+```yaml
+trigger:
+  - frontend
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: UseNode@1
+    displayName: "Use Node.js"
+    inputs:
+      version: "22.x"
+
+  - script: |
+      npm install
+      npm run build
+    displayName: "Install dependencies and build"
+
+  - task: Docker@2
+    displayName: "Build and Push Docker Image"
+    inputs:
+      containerRegistry: "kavindu_dockerhub"
+      repository: "kavinduorg/azuredevops-frontend"
+      command: "buildAndPush"
+      Dockerfile: "./Dockerfile"
 ```
 
 ---
