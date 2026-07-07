@@ -376,4 +376,11 @@ Secret variables are encrypted at rest. For security reasons, Azure DevOps will 
 
 ## Service Connections
 
-Service connections are used to securely connect Azure DevOps to external services like Azure, AWS, Docker registries, etc. They allow your pipelines to authenticate and interact with these services without exposing sensitive credentials in your YAML files.
+- Service connections are used to securely connect Azure DevOps to external services like Azure, AWS, Docker registries, etc. They allow your pipelines to authenticate and interact with these services without exposing sensitive credentials in your YAML files.
+- Service connection are created at project level. So, if you have multiple pipelines in a project, you can use the same service connection across all of them.
+
+---
+
+## Add self hosted agent
+
+- link - https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/linux-agent?view=azure-devops&tabs=IP-V4
