@@ -306,6 +306,47 @@ stages:
 
 ---
 
+```yaml
+trigger: none
+pr: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+  - stage: Build_and_Deploy
+    displayName: "Build and Deploy"
+    jobs:
+      - job: Checkout
+        displayName: "Checkout"
+        steps:
+          - checkout: self
+            submodules: recursive
+            persistCredentials: true
+      - job: Install_java
+        displayName: "Install Java"
+        steps:
+          - task: JavaToolInstaller@1
+            inputs:
+              versionSpec: "21"
+              jdkArchitectureOption: "x64"
+              jdkSourceOption: "PreInstalled"
+          - script: |
+              java --version
+              javac --version
+              echo $JAVA_HOME
+      - job: Java_Version
+        displayName: "Check Java Version"
+        steps:
+          - script: |
+              java --version
+              javac --version
+              echo $JAVA_HOME
+```
+
+- In above pipeline, we have 3 jobs. Each job runs on its own agent (VM). So, if we set java version in one job, it will not be available in other jobs. If we want to use the same java version across all jobs, we need to set it in each job.
+- 🛑 Also jobs doesn't run one after another. If we want to run sequentially we need to add `depend on`
+
 ### Task vs Script
 
 - **Task**: A pre-packaged script that performs an action like installing runtime, running unit tests, or packaging a repo as a build artifact. Tasks are reusable and can be shared across pipelines.
