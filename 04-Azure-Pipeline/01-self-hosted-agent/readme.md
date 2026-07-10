@@ -25,13 +25,58 @@ sudo ./svc.sh uninstall
 
 # ---------------------------------
 
-```
+```bash
 sudo useradd \
-  --system \
-  --create-home \
-  --home-dir /opt/azureagent \
-  --shell /usr/sbin/nologin \
-  azureagent
+    --system \
+    --create-home \
+    --home-dir /home/azureagent \
+    --shell /usr/sbin/nologin \
+    azureagent
 ```
 
-- Download and extract the agent to a folder on your machine.
+```bash
+sudo mkdir -p /opt/azureagent
+```
+
+Download the agent and extract it to /opt/azureagent
+
+```bash
+sudo chown -R azureagent:azureagent /opt/azureagent
+```
+
+```bash
+sudo su -s /bin/bash azureagent
+```
+
+temporarily gives the azureagent user a Bash shell for that session only.
+
+```
+Switch to azureagent
+↓
+Ignore /usr/sbin/nologin
+↓
+Start /bin/bash
+↓
+You get a shell as azureagent
+```
+
+```bash
+./config.sh
+```
+
+### use microk8s from azureagent
+
+- MicroK8s is installed as a Snap package. Snap applications expect every user to have a writable home directory because they store per-user data under:
+
+```
+/home/<username>/snap/
+```
+
+- So we must create a writable home directory for the azureagent user. The home directory is created in the useradd command above.
+
+- also to use microk8s kubectl without sudo, we need to add the azureagent user to the microk8s group:
+
+```bash
+sudo usermod -a -G microk8s azureagent
+newgrp microk8s
+```
