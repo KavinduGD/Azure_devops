@@ -2,6 +2,16 @@
 
 https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/linux-agent?view=azure-devops&tabs=IP-V4
 
+- In the self hoste agent pool we can select specific agent to run the pipeline. This is useful when we want to run a pipeline on a specific machine with specific hardware or software requirements. For that we can use `capabilities` (user defined and system capabilities).
+
+```yaml
+pool:
+  name: "treinetic-local-agent-pool"
+  # select the agent with the name "dev-agent" from the pool
+  demands:
+    - Agent.Name -equals dev-agent
+```
+
 ## Prepare permissions
 
 - The user configuring the agent needs pool admin permissions
